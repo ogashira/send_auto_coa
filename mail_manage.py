@@ -22,7 +22,7 @@ class MailManage(object):
 
     def __init__(self, isTest)-> None:
 
-        self.isTest: bool = isTest
+        self.__isTest: bool = isTest
 
         yaml_path = './'
         if platform.system() == 'Windows':
@@ -33,12 +33,12 @@ class MailManage(object):
             yaml_path = r'/Volumes/共有/技術課ﾌｫﾙﾀﾞ/200. effit_data/ﾏｽﾀ/coaﾒｰﾙ送信関連/mail_info.yaml'
 
         with open(yaml_path, 'r') as file:
-            self.yaml_data = yaml.safe_load(file)
+            self.__yaml_data = yaml.safe_load(file)
 
         mail_info = MailInfo(isTest)
-        self.mail_infos: List[List[str]] = mail_info.get_mail_infos()
+        self.__mail_infos: List[List[str]] = mail_info.get_mail_infos()
         '''
-        self.mail_infos 
+        self.__mail_infos 
         [ [ '長瀬', '広州/スタンレー', '長瀬産業株式会社', '瀬川様', address],
         ]
         '''
@@ -66,7 +66,7 @@ class MailManage(object):
         officeName = ""
         tantou = ""
         mailAddress = ""
-        for mail_info in self.mail_infos:
+        for mail_info in self.__mail_infos:
             officeName = ""
             if destination == mail_info[1]:
                 officeName = mail_info[2]
@@ -77,14 +77,14 @@ class MailManage(object):
         charset = 'iso-2022-jp'
 
         #smtp_host = 'smtp.toyo-jupiter.co.jp'
-        smtp_host = self.yaml_data['eigyou']['smtp_host']
-        smtp_port= self.yaml_data['eigyou']['smtp_port']
-        username = self.yaml_data['eigyou']['username']
-        password = self.yaml_data['eigyou']['password']
-        from_address = self.yaml_data['eigyou']['from_address']
+        smtp_host = self.__yaml_data['eigyou']['smtp_host']
+        smtp_port= self.__yaml_data['eigyou']['smtp_port']
+        username = self.__yaml_data['eigyou']['username']
+        password = self.__yaml_data['eigyou']['password']
+        from_address = self.__yaml_data['eigyou']['from_address']
         to_address = mailAddress
-        cc = self.yaml_data['eigyou']['cc']
-        if self.isTest:
+        cc = self.__yaml_data['eigyou']['cc']
+        if self.__isTest:
             cc = ''
         
         # to_address = [to_address] + cc

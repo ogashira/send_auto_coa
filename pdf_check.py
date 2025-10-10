@@ -1,6 +1,3 @@
-#! python
-# -*- coding:utf-8 -*-
-
 from pdfminer.pdfinterp import PDFResourceManager
 from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter

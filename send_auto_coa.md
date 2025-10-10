@@ -18,12 +18,13 @@ TKT用のCoa自動送信システムです。
 1. Terminalまたはコマンドプロンプトを起動して、``python main.py``で走ります。 
 1. いつ納期分のCoaを送信するか訊かれますので、20250911(2025年9月11日納期の場合)を入力してEnter。
 ### program動作
+
 ```bash
 testreport
   |
   |- 輸出
   |   |
-  |   |- S7-ABC-M15R-EX_25090555T_2025911_商社A-ﾊﾟｷｽﾀﾝ_AV062.pdf
+  |   |- S7-ABC-M15R-EX_25090555T_2025911_商社A-ｽﾀﾝ_AV062.pdf
   |   |- S11-KB-U-EX_25090453T_2025911_広州-会社_C855.pdf
   |   |- S9-U333-TH-R-EX_25090353T_2025911_広州-会社_C855.pdf
   |   |- S11-K3K3A-U-R-EX_25090352T_2025911_広州-会社_C855.pdf
@@ -43,16 +44,19 @@ testreport
                |
                |- 送信済
 ```
+
 1. 納入日フォルダが存在しない場合は、営業課ﾌｫﾙﾀﾞ/testreport/輸出/の下に納入日フォルダ(20250911)とその中に送信済フォルダが作られる。
 1. 営業課ﾌｫﾙﾀﾞ/testreport/輸出の中にあるcoa.pdfから納入日のcoaを注番ごとにzipにまとめて、納入日フォルダの中に入れられる。
 1. coa.pdfが不足していたり、zip化の時に何らかのエラーが起きるとzipファイルは作られない。
 1. そして、Email送信でzipファイルが添付されて向け先に送られる。送信に成功したzipファイルは送信済フォルダの中に入れられる。そして、納入日フォルダの中のzipファイルは削除される。
 1. 2回目移行に実行すると、送信済フォルダ内のzipファイルから未送信の注番を求めて、zipファイルを作り納入日フォルダに入れる。
-3. 再度20250617で成績書を送信した場合、pythonは20250617ディレクトリの中を調べて、送信先とCoaが同じものが存在していたら送信しない。20250617の中に存在しないCoaのみを送信する。
+1. 再度20250617で成績書を送信した場合、pythonは20250617ディレクトリの中を調べて、送信先とCoaが同じものが存在していたら送信しない。20250617の中に存在しないCoaのみを送信する。
 1. 複数のCoaを送信する時はzipファイルにまとめてから送信する
+
 ## 仕様書
 - 下図はTKTで現行のCoa自動送信システムのクラス図である。<br/>
 この実装では、Controlクラスが全ての仕事を請け負っていて、完全に手続き型のProgrammingになってしまっている。codeもクソでメンテしにくいので次のように変更する。<br/>
+
 ```mermaid
 ---
 title: TKT send_mail
@@ -145,8 +149,14 @@ class OrderNoShouldSend{
     - mail_infos: List~List~str~~
     - destinations: List~str~
     - sent_order_nos: List~List~str~~
+    - should_send_coas: Dict[str, Dict[str, List~str~]
+    - should_send_coas_thisTime: Dict[str, Dict[str, List~str~]
+    + isShouldSendCoas(): bool
     + get_should_send_coas(): Dict[str, Dict[str, List~str~]:
-    
+    + get_should_send_coas_thisTime(): Dict[str, Dict[str, List~str~]:
+    + show_should_send_coas(str, str)
+    + show_sent_order_nos(str)
+    + show_should_send_coas_thisTime(str)
 }
 class ExportPaintList{
     - delivery_date: str
@@ -165,7 +175,6 @@ class SentOrderNoFolder{
     - self.sent_order_nos_thistime: List~str~
     - sent_folder_path
     + get_sent_order_nos(): List~str~
-    + append_sent_order(str)
 }
 class Henkan{
     + henkan(str): str$
@@ -173,6 +182,7 @@ class Henkan{
 class Coa{
     - order_no: str
     - lot: str
+    + get_lot()
 }
 class CoasShouldZip{
     - coas: List~Coa~
@@ -181,6 +191,7 @@ class CoasShouldZip{
     - deli_date_folder: str
     - destination: str
     + create_zip()
+    + send_mail(): List~str~
 }
 class DeliDateFolder{
     - success_ziped_coas: List~CoasShouldZip~$ 
@@ -190,8 +201,9 @@ class DeliDateFolder{
 class MailManage{
     - isTest: bool
     - mail_infos: List~List~str~~
-    + send_mail(str, str, str): List~str~
+    - get_nouki()
     - move_successSendZipFiles()
+    + send_mail(str, str, str): List~str~
 }
 Main --> Control
 Control --> FolderManage
@@ -208,7 +220,7 @@ Control --> MailManage
 Control --> DeliDateFolder: instance
 Coa"1" --o "1..*"CoasShouldZip
 CoasShouldZip --o DeliDateFolder: 成功したzipのみ入る
-MailManage"1" --o "1"DeliDateFolder
+MailManage"1" --o "1"CoasShouldZip
 ```
 ```mermaid
 ---
@@ -260,14 +272,13 @@ ShippingProduct "1" o-- "1" Coa
 ## logに残す項目
 | 項目 | object    | クラス     |
 | :--- | :---:   | :---: |
-| delivery_dateに送信が必要なcoa | ExportPaintList    | Control     |
-| delivery_dateに送信が必要な注文番号 |  zipfile_info   | Control     |
-| 送信が完了している注文番号 |     | Control     |
-| 送信が必要な注文番号 | zip_list    | Control     |
-| zipに成功した注文番号 | success_zip    | Control     |
-| zipに失敗した注文番号 | fail_list    | Control     |
-| 送信に成功した注文番号 | success_send_mail   | Control     |
-| 送信に失敗した注文番号 | fail_send_mail    | Control     |
+| delivery_dateに送信が必要なcoa | export_paints    | OrderNoShouldSend  |
+| 送信が完了している注文番号 | sent_order_nos    | OrderNoShouldSend     |
+| 送信が必要な注文番号 | should_send_coas    | Control     |
+| zipに成功した注文番号 | DeliDateFolder.success_ziped_coas    | Control     |
+| zipに失敗した注文番号 |     |      |
+| 送信に成功した注文番号 | success_send_mails   | Control     |
+| 送信に失敗した注文番号 |     |      |
 | zipまたは送信で失敗した注文番号 | finally_fail_mail    | Control     |
 
 

@@ -5,22 +5,29 @@ import glob
 from coa import Coa
 from pdf_check import PdfCheck
 from deli_date_folder import DeliDateFolder
+from mail_manage import MailManage
 
 class CoasShouldZip(object):
     
     def __init__(self, order_no: str, coas: List[Coa], 
                        deli_date_path: str, isTest: bool,
-                       destination: str)->None:
-        self.order_no: str = order_no
-        self.coas: List[Coa] = coas
-        self.deli_date_path: str = deli_date_path
-        self.isTest: bool = isTest
-        self.destination: str = destination
+                       destination: str,
+                       mail_manage: MailManage)->None:
+        self.__order_no: str = order_no
+        self.__coas: List[Coa] = coas
+        self.__deli_date_path: str = deli_date_path
+        self.__isTest: bool = isTest
+        self.__destination: str = destination
+        self.__mail_manage: MailManage = mail_manage
+
+
+    def get_coas(self)-> List[Coa]:
+        return self.__coas
 
 
     def show_coa_lot(self)-> None:
-        print(self.order_no)
-        for coa in self.coas:
+        print(self.__order_no)
+        for coa in self.__coas:
             coa.show_lot()
 
 
@@ -52,28 +59,28 @@ class CoasShouldZip(object):
         
         pc = PdfCheck()
 
-        zip_path = r'{}/{}.zip'.format(self.deli_date_path, self.order_no) 
+        zip_path = r'{}/{}.zip'.format(self.__deli_date_path, self.__order_no) 
         with zipfile.ZipFile(zip_path ,'w') as z:
             find_count: int = 0 # 輸出ﾌｫﾙﾀﾞで見つけたcoaの数
-            for coa in self.coas:
-                lot = coa.lot
+            for coa in self.__coas:
+                lot: str = coa.get_lot()
                 for f in glob.glob(pdfPath + '*' + lot + '*' 
-                                                  + self.order_no + '*'):
+                                                  + self.__order_no + '*'):
                     tmp = str(f).split(splitMoji)
                     zipName = tmp[-1]
-                    # 'S6-UV382VB59S-T-R-EX_25090253T_2025911_長瀬産業/ﾌｧﾙﾃｯｸ_FB250535-1.pdf'
+                    # 'S6-V333V55-T-R-EX_25090253T_2025911_商社B/usoffice_F35-1.pdf'
                         
                     tup_error = pc.hatumono_check(str(f))
                     if tup_error[0] == True:
                         print('「初物あるため、zipを中止しました」: ' 
                                                               + zipName)
-                        with open(self.deli_date_path + '/log.txt', 'a') as f:
+                        with open(self.__deli_date_path + '/log.txt', 'a') as f:
                             f.write('初物中止: ' + zipName + '\n')
                         break
                     elif tup_error[1] == True:
                         print('「errorがあるため、zipを中止しました」: '
                                                               + zipName)
-                        with open(self.deli_date_path + '/log.txt', 'a') as f:
+                        with open(self.__deli_date_path + '/log.txt', 'a') as f:
                             f.write('error中止: ' + zipName + '\n')
                         break
                     else:
@@ -81,13 +88,16 @@ class CoasShouldZip(object):
                         find_count += 1
                         break #lotと注番が一致するpdfが一個見つかったら抜ける。
 
-            # 輸出ﾌｫﾙﾀﾞから見つけたcoaとself.coasとの数が一致したら、
+            # 輸出ﾌｫﾙﾀﾞから見つけたcoaとself.__coasとの数が一致したら、
             # success_ziped_coas(クラス変数)に追加
-            if find_count == len(self.coas):
+            if find_count == len(self.__coas):
                 DeliDateFolder.append_ziped_coa(self)
 
 
-        
-        with open(self.deli_date_path + '/log.txt', 'a') as f:
-            f.write('\n')
-
+    def send_mail(self)-> List[str]:
+        success_send_mail: List[str] = [] 
+        '''
+        success_send_mail = [destination, order_no)
+        '''
+        success_send_mail = self.__mail_manage.send_mail(self.__destination, self.__order_no, self.__deli_date_path)
+        return success_send_mail
