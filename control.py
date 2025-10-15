@@ -127,6 +127,10 @@ class Control(object):
         deli_date_folder.show_success_ziped_coas(log_path)
         self.show_success_send_mails(log_path, success_send_mails)
         order_no_should_send.show_target_for_yet(log_path, success_send_mails)
+        print('プログラムは無事終了しました。>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        with open(log_path, 'a') as f:
+            f.write('プログラムは無事終了しました。>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+
 
 
 
@@ -145,7 +149,7 @@ class Control(object):
         print('\n')
 
         with open(log_path, 'a') as f:
-            f.write(f'(送信に成功した向け先)')
+            f.write(f'(送信に成功した向け先)\n')
 
             num: int = 1
             for line in success_send_mails:
