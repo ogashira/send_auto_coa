@@ -131,6 +131,7 @@ class Main{
 }
 class Control{
     + start()
+    + show_success_send_mails()
 }
 class FolderManage{
     - isTest: bool
@@ -157,6 +158,7 @@ class OrderNoShouldSend{
     + show_should_send_coas(str, str)
     + show_sent_order_nos(str)
     + show_should_send_coas_thisTime(str)
+    + show_target_for_yet(str, List~List~str~~)
 }
 class ExportPaintList{
     - delivery_date: str
@@ -190,6 +192,8 @@ class CoasShouldZip{
     - isTest: bool
     - deli_date_folder: str
     - destination: str
+    + show_orderNo_destination(int)
+    + fwrite_orderNo_destination(str, int)
     + create_zip()
     + send_mail(): List~str~
 }
@@ -197,6 +201,7 @@ class DeliDateFolder{
     - success_ziped_coas: List~CoasShouldZip~$ 
     + append_ziped_coa(zip: CoasShouldZip)$
     + send_mail(): List~List~str~~
+    + show_success_ziped_coas(str)
 }
 class MailManage{
     - isTest: bool

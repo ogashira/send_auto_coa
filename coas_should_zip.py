@@ -21,6 +21,16 @@ class CoasShouldZip(object):
         self.__mail_manage: MailManage = mail_manage
 
 
+    def show_orderNo_destination(self, num:int)->None:
+        print(f'{num}. {self.__order_no}, {self.__destination}')
+
+
+    def fwrite_orderNo_destination(self, log_path: str, num:int)->None:
+        with open(log_path, 'a') as f:
+            f.write(f'{num}. {self.__order_no}, {self.__destination}\n')
+
+
+
     def get_coas(self)-> List[Coa]:
         return self.__coas
 
@@ -95,9 +105,9 @@ class CoasShouldZip(object):
 
 
     def send_mail(self)-> List[str]:
-        success_send_mail: List[str] = [] 
+        success_send_mails: List[str] = [] 
         '''
         success_send_mail = [destination, order_no)
         '''
-        success_send_mail = self.__mail_manage.send_mail(self.__destination, self.__order_no, self.__deli_date_path)
-        return success_send_mail
+        success_send_mails = self.__mail_manage.send_mail(self.__destination, self.__order_no, self.__deli_date_path)
+        return success_send_mails

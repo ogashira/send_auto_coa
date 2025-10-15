@@ -131,8 +131,8 @@ class MailManage(object):
             smtp = smtplib.SMTP(smtp_host, smtp_port)
             smtp.login(username, password)
             smtp.send_message(msg)
-            success_send_mail.append(destination)
             success_send_mail.append(order_no)
+            success_send_mail.append(destination)
             smtp.quit
             move_successSendZipFiles(zipPath,  deli_date_path + '/送信済')
         except Exception:

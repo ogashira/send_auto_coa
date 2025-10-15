@@ -1,4 +1,4 @@
-import pprint
+from re import I
 from typing import List, Dict
 from export_paint_list import ExportPaintList
 from mail_info import MailInfo
@@ -78,7 +78,7 @@ class OrderNoShouldSend(object):
 
 
     def show_should_send_coas(self, log_path:str, date_deli:str)-> None:
-        print(f'{date_deli} に送信が必要なCOA')
+        print(f'({date_deli} に送信が必要なCOA)')
         num:int = 1
         for orderNo, v in self.__should_send_coas.items():
             myStr: str = ""
@@ -92,7 +92,7 @@ class OrderNoShouldSend(object):
         print('\n')
 
         with open(log_path, 'a') as f:
-            f.write(f'{date_deli} に送信が必要なCOA\n')
+            f.write(f'({date_deli} に送信が必要なCOA)\n')
             num:int = 1
             for orderNo, v in self.__should_send_coas.items():
                 myStr: str = ""
@@ -108,13 +108,13 @@ class OrderNoShouldSend(object):
 
 
     def show_sent_order_nos(self, log_path:str)-> None:
-        print(f'既に送信済みの注番')
+        print(f'(既に送信済みの注番)')
         for no in self.__sent_order_nos:
             print(no)
         print('\n')
 
         with open(log_path, 'a') as f:
-            f.write(f'既に送信済みの注番\n')
+            f.write(f'(既に送信済みの注番)\n')
 
             num:int = 1
             for no in self.__sent_order_nos:
@@ -123,7 +123,7 @@ class OrderNoShouldSend(object):
 
 
     def show_should_send_coas_thisTime(self, log_path:str )-> None:
-        print(f'未送信のため送信が必要なCOA')
+        print(f'(未送信のため送信が必要なCOA)')
         num:int = 1
         for orderNo, v in self.__should_send_coas_thisTime.items():
             myStr: str = ""
@@ -137,7 +137,7 @@ class OrderNoShouldSend(object):
         print('\n')
 
         with open(log_path, 'a') as f:
-            f.write(f'未送信のため送信が必要なCOA\n')
+            f.write(f'(未送信のため送信が必要なCOA)\n')
             num:int = 1
             for orderNo, v in self.__should_send_coas_thisTime.items():
                 myStr: str = ""
@@ -149,4 +149,45 @@ class OrderNoShouldSend(object):
                 num += 1
 
             f.write('\n\n')
+
+    def show_target_for_yet(self, log_path: str, 
+                            success_send_mails:List[List[str]])-> None:
+        #success_send_mails = [['AHI832', 'タイ/小糸'], ['AHI855', 'タイ小糸']] 
+
+        success_orderNos: List[str] = []
+        for line in success_send_mails:
+            success_orderNos.append(line[0]) #['AHI832', 'AHI855'...]
+
+        targets_for_yet: List[List[str]] = [] #[['AHI832', 'タイ/小糸'],..]
+        for orderNo, v in self.__should_send_coas_thisTime.items():
+            target_for_yet: List[str] = []
+            for destination in v.keys():
+                if not orderNo in success_orderNos:
+                    target_for_yet.append(orderNo)
+                    target_for_yet.append(destination)
+                    targets_for_yet.append(target_for_yet)
+        
+            
+        print(f'(未だに送信できていない向先)')
+        num: int = 1
+        for line in targets_for_yet:
+            print(f'{num}. {line[0]}, {line[1]}')
+            num += 1
+        print('\n')
+
+        with open(log_path, 'a') as f:
+            f.write(f'(未だに送信出来ていない向先)\n')
+            num: int = 1
+            for line in targets_for_yet:
+                f.write(f'{num}. {line[0]}, {line[1]}\n')
+                num += 1
+            f.write('\n\n')
+
+
+
+
+
+
+                
+
 

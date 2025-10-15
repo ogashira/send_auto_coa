@@ -28,4 +28,22 @@ class DeliDateFolder:
         return success_send_mails
                                                   
 
+    def show_success_ziped_coas(self, log_path)-> None:
+        print(f'(zipに成功したCOA)')
+        num: int = 1
+        for coas_should_zip in DeliDateFolder.success_ziped_coas:
+            coas_should_zip.show_orderNo_destination(num)
+            num += 1
+        print('\n')
+
+        with open(log_path, 'a') as f:
+            f.write(f'(zipに成功したCOA)\n')
+
+        num: int = 1
+        for coas_should_zip in DeliDateFolder.success_ziped_coas:
+            coas_should_zip.fwrite_orderNo_destination(log_path, num)
+            num += 1
+
+        with open(log_path, 'a') as f:
+            f.write('\n\n')
 

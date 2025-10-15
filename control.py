@@ -124,20 +124,36 @@ class Control(object):
         order_no_should_send.show_should_send_coas(log_path, date_deli)
         order_no_should_send.show_sent_order_nos(log_path)
         order_no_should_send.show_should_send_coas_thisTime(log_path)
+        deli_date_folder.show_success_ziped_coas(log_path)
+        self.show_success_send_mails(log_path, success_send_mails)
+        order_no_should_send.show_target_for_yet(log_path, success_send_mails)
+
+
 
         
-        print('success_send_mails>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        print(success_send_mails)
 
 
-
-        for coas_should_zip in coas_should_zips:
-            coas_should_zip.show_coa_lot()
         
 
-        for success_ziped_coa in DeliDateFolder.success_ziped_coas: #クラス変数
-            for coa in success_ziped_coa.get_coas(): #get_coas()はCoaのリスト
-                print(coa.get_lot())
+
+    def show_success_send_mails(self, log_path: str, success_send_mails: List[List[str]])-> None:
+        print(f'(送信に成功した向け先)')
+        num: int = 1
+        for line in success_send_mails:
+            print(f'{num}. {line[0]}, {line[1]}')
+            num += 1
+        print('\n')
+
+        with open(log_path, 'a') as f:
+            f.write(f'(送信に成功した向け先)')
+
+            num: int = 1
+            for line in success_send_mails:
+                f.write(f'{num}. {line[0]}, {line[1]}\n')
+                num += 1
+            f.write('\n\n')
+
+        
 
         
         '''
@@ -151,10 +167,10 @@ class Control(object):
         プログラムは無事終了しました。
         '''
         '''
-        {}に送信が必要なCOA            OrderNoShouldSend.export_paints
-        {}に送信が必要な向け先         should_send_coas       
-        すでに送信済みの向け先         OrderNoShouldSend.show_sent_order_nos
-        zipで失敗したCOA
+        {}に送信が必要なCOA            OrderNoShouldSend.show_should_send_coas / self.__should_send_coas
+        すでに送信済みの注番           OrderNoShouldSend.show_sent_order_nos / self.__sent_order_nos
+        未送信のため送信が必要なCOA    OrderNoShouldSend.show_should_send_coas_thisTime/ self.__should_send_coas_thisTime
+        zipで成功したCOA               DeliDateFolder.show_success_ziped_coas / DeliDateFolder.success_ziped_coas
         送信に成功した向け先           this.success_send_mails
         まだ送信出来ていない向け先
         プログラムは無事終了しました。
