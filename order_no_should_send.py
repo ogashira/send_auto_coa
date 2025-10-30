@@ -41,21 +41,26 @@ class OrderNoShouldSend(object):
                             'AHI855': {'タイ/小糸': [...]} }
         '''
         
-        # self.__destinationsでフィルターかけてDictへ変換
-        self.__should_send_coas = {}
-        for destination in self.__destinations:
-            dic_dest: Dict[str, List[str]] = {}
-            filterd_dest: List[str] = []
-            for line in self.export_paints:
-                if destination in line:
-                    if not line[1] in self.__should_send_coas:
-                        filterd_dest.append(str(line[2])) # lot
-                        dic_dest[destination] = filterd_dest
-                        self.__should_send_coas[str(line[1])] = dic_dest
-                    else:
-                        self.__should_send_coas[str(line[1])][destination].append(str(line[2]))
-
-        return self.__should_send_coas
+        should_send_coas = {}
+        for line in self.export_paints:
+            order_no = str(line[1])
+            lot = str(line[2])
+            destination = None                                     
+            for d in self.__destinations:                          
+                if d in line:                                      
+                    destination = d                                
+                    break                                          
+                                                                   
+            if destination:                                        
+                if order_no not in should_send_coas:               
+                    should_send_coas[order_no] = {}                
+                                                                   
+                if destination not in should_send_coas[order_no]:  
+                    should_send_coas[order_no][destination] = []   
+                                                                   
+                should_send_coas[order_no][destination].append(lot)
+                                                                   
+        return should_send_coas                                    
 
 
     def get_should_send_coas_thisTime(self)-> Dict[str, Dict[str, List[str]]]:

@@ -133,13 +133,6 @@ class Control(object):
 
 
 
-
-        
-
-
-        
-
-
     def show_success_send_mails(self, log_path: str, success_send_mails: List[List[str]])-> None:
         print(f'(送信に成功した向け先)')
         num: int = 1
