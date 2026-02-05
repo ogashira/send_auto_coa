@@ -197,6 +197,9 @@ class CoasShouldZip{
     + create_zip()
     + send_mail(): List~str~
 }
+class PdfCheck{
+    + hatumono_check(str):tuple~bool~
+}
 class DeliDateFolder{
     - success_ziped_coas: List~CoasShouldZip~$ 
     + append_ziped_coa(zip: CoasShouldZip)$
@@ -225,6 +228,7 @@ Control --> MailManage
 Control --> DeliDateFolder: instance
 Coa"1" --o "1..*"CoasShouldZip
 CoasShouldZip --o DeliDateFolder: 成功したzipのみ入る
+CoasShouldZip --> PdfCheck
 MailManage"1" --o "1"CoasShouldZip
 ```
 ```mermaid
