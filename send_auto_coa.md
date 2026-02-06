@@ -52,6 +52,7 @@ testreport
 1. 2回目移行に実行すると、送信済フォルダ内のzipファイルから未送信の注番を求めて、zipファイルを作り納入日フォルダに入れる。
 1. 再度20250617で成績書を送信した場合、pythonは20250617ディレクトリの中を調べて、送信先とCoaが同じものが存在していたら送信しない。20250617の中に存在しないCoaのみを送信する。
 1. 複数のCoaを送信する時はzipファイルにまとめてから送信する
+1. **2026/02/06 仕様追加** `\\192.168.1.247\共有\営業課ﾌｫﾙﾀﾞ\testreport\zip_files\20260128_test\送信済`中のzipファイルの中身のpdfファイルを全てListに詰めて、`\\192.168.1.247\共有\営業課ﾌｫﾙﾀﾞ\testreport\輸出`からファイルを探して、`\\192.168.1.247\共有\営業課ﾌｫﾙﾀﾞ\testreport\輸出\送信済み(Robot)` に移動する。
 
 ## 仕様書
 - 下図はTKTで現行のCoa自動送信システムのクラス図である。<br/>
@@ -271,9 +272,14 @@ class Coa{
     - lotNo:str
     + file_name:str
 }
+class MoveCoaToSousinsumi{
+    + list_contents_of_zip_files(str): List~str~
+    + move_files_to_sousinsumi(List~str~):Dict
+}
 Main --> Control
 Control --> DateManage
 Control --> Mail
+Control --> MoveCoaToSousinsumi
 Mail "1" o-- "1..*" Customer
 Customer "1" o-- "1..*" ShippingProduct
 ShippingProduct "1" o-- "1" Coa
@@ -289,6 +295,9 @@ ShippingProduct "1" o-- "1" Coa
 | 送信に成功した注文番号 | success_send_mails   | Control     |
 | 送信に失敗した注文番号 |     |      |
 | zipまたは送信で失敗した注文番号 | finally_fail_mail    | Control     |
+| 移動したファイル名 | moved_files['moved_files']    | Control     |
+| 見つからなかったファイル名 | moved_files['not_found_files']    | Control     |
+| 移動でエラーになったファイル名 | moved_files['errors']    | Control     |
 
 
 

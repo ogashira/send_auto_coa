@@ -83,6 +83,7 @@ class OrderNoShouldSend(object):
 
 
     def show_should_send_coas(self, log_path:str, date_deli:str)-> None:
+        print()
         print(f'({date_deli} に送信が必要なCOA)')
         num:int = 1
         for orderNo, v in self.__should_send_coas.items():
@@ -97,6 +98,7 @@ class OrderNoShouldSend(object):
         print('\n')
 
         with open(log_path, 'a') as f:
+            f.write('\n')
             f.write(f'({date_deli} に送信が必要なCOA)\n')
             num:int = 1
             for orderNo, v in self.__should_send_coas.items():
@@ -187,12 +189,3 @@ class OrderNoShouldSend(object):
                 f.write(f'{num}. {line[0]}, {line[1]}\n')
                 num += 1
             f.write('\n\n')
-
-
-
-
-
-
-                
-
-

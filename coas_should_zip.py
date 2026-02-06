@@ -82,17 +82,17 @@ class CoasShouldZip(object):
                         
                     tup_error = pc.hatumono_check(str(f))
                     if tup_error[0] == True:
-                        print('「初物あるため、zipを中止しました」: ' 
+                        print('「初物あるため、zipスキップました」: ' 
                                                               + zipName)
                         with open(self.__deli_date_path + '/log.txt', 'a') as f:
                             f.write('初物中止: ' + zipName + '\n')
-                        break
+                        continue
                     elif tup_error[1] == True:
-                        print('「errorがあるため、zipを中止しました」: '
+                        print('「errorがあるため、zipスキップしました」: '
                                                               + zipName)
                         with open(self.__deli_date_path + '/log.txt', 'a') as f:
                             f.write('error中止: ' + zipName + '\n')
-                        break
+                        continue
                     else:
                         z.write(f,zipName)
                         find_count += 1

@@ -13,13 +13,8 @@ from order_no_should_send import OrderNoShouldSend
 from coa import Coa
 from coas_should_zip import CoasShouldZip
 from mail_manage import MailManage
-'''
-from get_exists_coa import GetExistsCoa
-from shipment_info import ShipmentInfo
-from coa_preparation import CoaPreparation
-from zip_check import ZipCheck
-'''
 from typing import List, Dict
+from move_coa_to_sousinsumi import MoveCoaToSousinsumi
 
 
 
@@ -127,8 +122,28 @@ class Control(object):
         deli_date_folder.show_success_ziped_coas(log_path)
         self.show_success_send_mails(log_path, success_send_mails)
         order_no_should_send.show_target_for_yet(log_path, success_send_mails)
+
+        # ここから送信に成功したzipの中身ファイルを輸出フォルダから送信済み(Robot)フォルダに移動する
+        move_coa_to_sousinsumi = MoveCoaToSousinsumi()
+        # 送信済zipの中身を取り出す
+        all_filenames: List[str] = \
+            move_coa_to_sousinsumi.list_contents_of_zip_files(self.__deli_date_path)
+        moved_files: Dict = move_coa_to_sousinsumi.move_files_to_sousinsumi(all_filenames)
+
+        pprint.pprint(moved_files)
+        movedfiles: List[str] = moved_files['moved_files']
+        notfoundfiles: List[str] = moved_files['not_found_files']
+        errors: List[str] = moved_files['errors']
+
+        txt = f'moved_files: {"...".join(movedfiles)} \n' \
+        f'not_found_files: {"...".join(notfoundfiles)} \n' \
+        f'errors: {"...".join(errors)}'
+
+
         print('プログラムは無事終了しました。>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         with open(log_path, 'a') as f:
+            f.write(txt)
+            f.write('\n\n')
             f.write('プログラムは無事終了しました。>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
 
 
@@ -150,25 +165,8 @@ class Control(object):
                 num += 1
             f.write('\n\n')
 
-        
 
+    def get_deli_date_path(self):
+        return self.__deli_date_path
         
-        '''
-        {}に送信が必要なCOA
-        zipに成功したCOA
-        zipで失敗したCOA
-        {}に送信が必要な向け先
-        zipに成功して送信をする向け先
-        送信に成功した向け先
-        最終的に送信できなかった向け先
-        プログラムは無事終了しました。
-        '''
-        '''
-        {}に送信が必要なCOA            OrderNoShouldSend.show_should_send_coas / self.__should_send_coas
-        すでに送信済みの注番           OrderNoShouldSend.show_sent_order_nos / self.__sent_order_nos
-        未送信のため送信が必要なCOA    OrderNoShouldSend.show_should_send_coas_thisTime/ self.__should_send_coas_thisTime
-        zipで成功したCOA               DeliDateFolder.show_success_ziped_coas / DeliDateFolder.success_ziped_coas
-        送信に成功した向け先           this.success_send_mails
-        まだ送信出来ていない向け先
-        プログラムは無事終了しました。
-        '''
+    
