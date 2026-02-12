@@ -1,9 +1,6 @@
-from re import I
 import sys
 import pprint
 import platform
-import csv
-import os
 import datetime
 
 from deli_date_folder import DeliDateFolder
@@ -16,18 +13,14 @@ from mail_manage import MailManage
 from typing import List, Dict
 from move_coa_to_sousinsumi import MoveCoaToSousinsumi
 
-
+my_module_path = r'\\192.168.1.247\共有\技術課ﾌｫﾙﾀﾞ\200. effit_data\ﾏｽﾀ\sql_python_module'
+if platform.system() == 'Linux':
+    my_module_path = r'/mnt/public/技術課ﾌｫﾙﾀﾞ/200. effit_data/ﾏｽﾀ/sql_python_module'
+sys.path.append(my_module_path)
+from list_contents_of_zip_files import ListContentsOfZipFiles
 
 class Control(object):
 
-    '''
-    delivery_date : inputした20220930
-    DestinationShouldSendでcoaを送らなければならない向け先を求める
-        - FolderManageで必要なフォルダを作っておく
-        - ExportPaintList(輸出塗料連絡表)で納期日のリストを求め
-        - MailInfo(メール送信情報)でリストを絞り込む
-        - 更にSentOrderNo(送信済み)から未送信の注番should_send_order_nosを絞る
-    '''
 
     def __init__(self)-> None:
         ui: UserInterface = UserInterface()
@@ -125,9 +118,11 @@ class Control(object):
 
         # ここから送信に成功したzipの中身ファイルを輸出フォルダから送信済み(Robot)フォルダに移動する
         move_coa_to_sousinsumi = MoveCoaToSousinsumi()
+        zip_files = ListContentsOfZipFiles() # my_python_module
         # 送信済zipの中身を取り出す
+        zip_path = f'{self.__deli_date_path}/送信済'
         all_filenames: List[str] = \
-            move_coa_to_sousinsumi.list_contents_of_zip_files(self.__deli_date_path)
+            zip_files.list_contents_of_zip_files(zip_path)
         moved_files: Dict = move_coa_to_sousinsumi.move_files_to_sousinsumi(all_filenames)
 
         pprint.pprint(moved_files)

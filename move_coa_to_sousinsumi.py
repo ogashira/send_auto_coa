@@ -7,46 +7,6 @@ import platform
 
 class MoveCoaToSousinsumi:
 
-    def list_contents_of_zip_files(self, deli_date_path):
-        """
-
-    指定されたディレクトリ内のすべてのzipファイルの中身（ファイル名
-    ）をリストアップし、
-        それらを結合して一つのリストとして返します。
-
-        Args:
-            directory_path (str): 検索するディレクトリのパス。
-
-        Returns:
-            list:
-    すべてのzipファイルから抽出されたファイル名のリスト。
-
-    エラーが発生した場合は、エラーメッセージを含む場合もあります。
-        """
-        all_filenames = []
-
-        directory_path = f'{deli_date_path}/送信済'
-        # 指定されたディレクトリが存在するかチェック
-        if not os.path.isdir(directory_path):
-            print(f"エラー: 指定されたパス '{directory_path}' はディレクトリではありません。")
-            return []
-
-        # ディレクトリツリーをウォークしてzipファイルを探す
-        for root, _, files in os.walk(directory_path):
-            for file in files:
-                if file.endswith(".zip"):
-                    zip_filepath = os.path.join(root, file)
-                    try:
-                        with zipfile.ZipFile(zip_filepath, 'r') as zf:
-                            # zipファイル内のファイル名を取得してリストに追加
-                            all_filenames.extend(zf.namelist())
-                    except zipfile.BadZipFile:
-                        print(f"警告: '{zip_filepath}' は不正なzipファイルです。スキップします。")
-                    except Exception as e:
-                        print(f"エラー: '{zip_filepath}' の処理中に予期せぬエラーが発生しました: {e}")
-
-        return all_filenames
-
 
     def move_files_to_sousinsumi(self, filenames_to_move)-> Dict:
         """
